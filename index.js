@@ -45,35 +45,49 @@ mongoose.connectAsync(config.db).then(function () {
 
     io.on('connection', function (socket) {
         setInterval(function () {
+            var result = [];
             db.server.getAll().then(function (servers) {
                 _.reduce(servers, function (p, server) {
+                    var tmp = {
+                        name: server.name,
+                        type: server.type,
+                        host: server.host,
+                        location: server.location,
+                        ip4: server.ip4,
+                        ip6: server.ip6,
+                        uptime: server.uptime,
+                        update: server.update,
+                        up: server.up
+                    };
                     return p.then(function () {
                         return db.cpu.findByServer(server.name).then(function (data) {
-                            server.cpu = data;
+                            tmp.cpu = data;
                         }).then(function () {
                             return db.disk.findByServer(server.name);
                         }).then(function (data) {
-                            server.disk = data;
+                            tmp.disk = data;
                         }).then(function () {
                             return db.load.findByServer(server.name);
                         }).then(function (data) {
-                            server.load = data;
+                            tmp.load = data;
                         }).then(function () {
                             return db.memory.findByServer(server.name);
                         }).then(function (data) {
-                            server.memory = data;
+                            tmp.memory = data;
                         }).then(function () {
                             return db.network.findByServer(server.name);
                         }).then(function (data) {
-                            server.network = data;
+                            tmp.network = data;
                         }).then(function () {
                             return db.swap.findByServer(server.name);
                         }).then(function (data) {
-                            server.swap = data;
+                            tmp.swap = data;
+                        }).then(function () {
+                            result.push(tmp);
                         });
                     });
                 }, promise.resolve()).then(function () {
-                    socket.emit('data', servers);
+                    socket.emit('data', result);
                 });
             });
         }, 5000);
