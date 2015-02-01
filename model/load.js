@@ -18,6 +18,6 @@ load.statics.getAll = function () {
     return this.findAsync({});
 };
 load.statics.findByServer = function (name) {
-    return this.findAsync({server: name}, null, {limit: 100, sort: {time: -1}});
+    return this.findAsync({server: name}, null, {limit: 10, sort: {time: -1}});
 };
 module.exports = mongoose.model('load', load);
