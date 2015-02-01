@@ -1,7 +1,8 @@
 var config = {
     db: 'mongodb://127.0.0.1/serverstatus',
-    json: './json.json',
-    listen: 23333
+    json: '../stats.json',
+    listen: 23333,
+    updatePeriod: 60*1000
 };
 
 module.exports = config;

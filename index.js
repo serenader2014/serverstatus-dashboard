@@ -44,60 +44,65 @@ mongoose.connectAsync(config.db).then(function () {
     });
 
     io.on('connection', function (socket) {
+        sendData(socket);
         setInterval(function () {
-            var result = [];
-            db.server.getAll().then(function (servers) {
-                _.reduce(servers, function (p, server) {
-                    var tmp = {
-                        name: server.name,
-                        type: server.type,
-                        host: server.host,
-                        location: server.location,
-                        ip4: server.ip4,
-                        ip6: server.ip6,
-                        uptime: server.uptime,
-                        update: server.update,
-                        up: server.up
-                    };
-                    return p.then(function () {
-                        return db.cpu.findByServer(server.name).then(function (data) {
-                            tmp.cpu = data;
-                        }).then(function () {
-                            return db.disk.findByServer(server.name);
-                        }).then(function (data) {
-                            tmp.disk = data;
-                        }).then(function () {
-                            return db.load.findByServer(server.name);
-                        }).then(function (data) {
-                            tmp.load = data;
-                        }).then(function () {
-                            return db.memory.findByServer(server.name);
-                        }).then(function (data) {
-                            tmp.memory = data;
-                        }).then(function () {
-                            return db.network.findByServer(server.name);
-                        }).then(function (data) {
-                            tmp.network = data;
-                        }).then(function () {
-                            return db.swap.findByServer(server.name);
-                        }).then(function (data) {
-                            tmp.swap = data;
-                        }).then(function () {
-                            result.push(tmp);
-                        });
-                    });
-                }, promise.resolve()).then(function () {
-                    socket.emit('data', result);
-                });
-            });
-        }, 5000);
+            sendData(socket);
+        }, config.updatePeriod);
     });
+
+    function sendData (socket) {
+        var result = [];
+        return db.server.getAll().then(function (servers) {
+            _.reduce(servers, function (p, server) {
+                var tmp = {
+                    name: server.name,
+                    type: server.type,
+                    host: server.host,
+                    location: server.location,
+                    ip4: server.ip4,
+                    ip6: server.ip6,
+                    uptime: server.uptime,
+                    update: server.update,
+                    up: server.up
+                };
+                return p.then(function () {
+                    return db.cpu.findByServer(server.name).then(function (data) {
+                        tmp.cpu = data;
+                    }).then(function () {
+                        return db.disk.findByServer(server.name);
+                    }).then(function (data) {
+                        tmp.disk = data;
+                    }).then(function () {
+                        return db.load.findByServer(server.name);
+                    }).then(function (data) {
+                        tmp.load = data;
+                    }).then(function () {
+                        return db.memory.findByServer(server.name);
+                    }).then(function (data) {
+                        tmp.memory = data;
+                    }).then(function () {
+                        return db.network.findByServer(server.name);
+                    }).then(function (data) {
+                        tmp.network = data;
+                    }).then(function () {
+                        return db.swap.findByServer(server.name);
+                    }).then(function (data) {
+                        tmp.swap = data;
+                    }).then(function () {
+                        result.push(tmp);
+                    });
+                });
+            }, promise.resolve()).then(function () {
+                socket.emit('data', result);
+            });
+        });
+    }
 
     server.listen(config.listen, function () {
         console.log('Express listen on ' + config.listen);
     });
 
-    setInterval(function () {
+    function saveData() {
         fs.readJsonAsync(config.json).then(function (data) {
             if (previousData === data.updated) {
                 return false;
@@ -181,7 +186,11 @@ mongoose.connectAsync(config.db).then(function () {
             });
             previousData = data.updated;
         });
-    }, 10000);
+    }
+
+    setInterval(function () {
+        saveData();
+    }, config.updatePeriod);
 }).catch(function (err) {
     console.error(err);
 });

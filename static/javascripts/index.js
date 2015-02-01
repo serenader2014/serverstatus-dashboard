@@ -16,7 +16,7 @@ app.config(['$routeProvider',function($routeProvider) {
 }]);
 
 app.controller('homepageCtrl', ['$scope', '$rootScope', '$http', '$location', 'checkUser', function ($scope, $rootScope, $http, $location, checkUser) {
-    var socket = io.connect('http://localhost:23333');
+    var socket = io.connect('http://hostus.damn.so:23333');
     socket.on('data', function (data) {
         var d = [];
         angular.forEach(data, function (server) {
@@ -25,7 +25,7 @@ app.controller('homepageCtrl', ['$scope', '$rootScope', '$http', '$location', 'c
                 networkIn.push(n.in/1024);
             });
             d.push({
-                name: 'network in',
+                name: server.name,
                 data: networkIn
             });
         });
@@ -44,7 +44,6 @@ app.controller('homepageCtrl', ['$scope', '$rootScope', '$http', '$location', 'c
                 height: 500
             }
         };
-        console.log(data);
     });
 }]);
 
