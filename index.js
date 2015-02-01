@@ -4,8 +4,6 @@ var express = require('express'),
     fs = promise.promisifyAll(require('fs-extra')),
     _ = require('lodash'),
     app = express(),
-    server = require('http').createServer(app),
-    io = require('socket.io')(server),
     path = require('path'),
     db = require('./model'),
     config = require('./config'),
@@ -39,66 +37,53 @@ mongoose.connectAsync(config.db).then(function () {
         }
     });
 
+    app.get('/api/server', function (req, res) {
+        db.server.getAll().then(function (servers) {
+            res.json(servers);
+        });
+    });
+
+    app.get('/api/network', function (req, res) {
+        db.network.getAll().then(function (data) {
+            res.json(data);
+        });
+    });
+
+    app.get('/api/cpu', function (req, res) {
+        db.cpu.getAll().then(function (data) {
+            res.json(data);
+        });
+    });
+
+    app.get('/api/disk', function (req, res) {
+        db.disk.getAll().then(function (data) {
+            res.json(data);
+        });
+    });
+
+    app.get('/api/load', function (req, res) {
+        db.load.getAll().then(function (data) {
+            res.json(data);
+        });
+    });
+
+    app.get('/api/memory', function (req, res) {
+        db.memory.getAll().then(function (data) {
+            res.json(data);
+        });
+    });
+
+    app.get('/api/swap', function (req,res) {
+        db.memory.getAll().then(function (data) {
+            res.json(data);
+        });
+    });
+
     app.get('/', function (req, res) {
         res.render('index');
     });
 
-    io.on('connection', function (socket) {
-        sendData(socket);
-        setInterval(function () {
-            sendData(socket);
-        }, config.updatePeriod);
-    });
-
-    function sendData (socket) {
-        var result = [];
-        return db.server.getAll().then(function (servers) {
-            _.reduce(servers, function (p, server) {
-                var tmp = {
-                    name: server.name,
-                    type: server.type,
-                    host: server.host,
-                    location: server.location,
-                    ip4: server.ip4,
-                    ip6: server.ip6,
-                    uptime: server.uptime,
-                    update: server.update,
-                    up: server.up
-                };
-                return p.then(function () {
-                    return db.cpu.findByServer(server.name).then(function (data) {
-                        tmp.cpu = data;
-                    }).then(function () {
-                        return db.disk.findByServer(server.name);
-                    }).then(function (data) {
-                        tmp.disk = data;
-                    }).then(function () {
-                        return db.load.findByServer(server.name);
-                    }).then(function (data) {
-                        tmp.load = data;
-                    }).then(function () {
-                        return db.memory.findByServer(server.name);
-                    }).then(function (data) {
-                        tmp.memory = data;
-                    }).then(function () {
-                        return db.network.findByServer(server.name);
-                    }).then(function (data) {
-                        tmp.network = data;
-                    }).then(function () {
-                        return db.swap.findByServer(server.name);
-                    }).then(function (data) {
-                        tmp.swap = data;
-                    }).then(function () {
-                        result.push(tmp);
-                    });
-                });
-            }, promise.resolve()).then(function () {
-                socket.emit('data', result);
-            });
-        });
-    }
-
-    server.listen(config.listen, function () {
+    app.listen(config.listen, function () {
         console.log('Express listen on ' + config.listen);
     });
 
