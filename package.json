@@ -1,0 +1,21 @@
+{
+    "name": "serverstatus-dashboard",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "express": "*",
+        "express-session": "*",
+        "morgan": "*",
+        "cookie-parser": "*",
+        "body-parser": "*",
+        "jade": "*",
+        "bluebird": "*",
+        "fs-extra": "*",
+        "socket.io": "*",
+        "mongoose": "*",
+        "lodash": "*"
+    }
+}
