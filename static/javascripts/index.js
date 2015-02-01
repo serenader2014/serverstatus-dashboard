@@ -18,6 +18,32 @@ app.config(['$routeProvider',function($routeProvider) {
 app.controller('homepageCtrl', ['$scope', '$rootScope', '$http', '$location', 'checkUser', function ($scope, $rootScope, $http, $location, checkUser) {
     var socket = io.connect('http://localhost:23333');
     socket.on('data', function (data) {
+        var d = [];
+        angular.forEach(data, function (server) {
+            var networkIn = [];
+            angular.forEach(server.network, function (n) {
+                networkIn.push(n.in/1024);
+            });
+            d.push({
+                name: 'network in',
+                data: networkIn
+            });
+        });
+        $scope.config = {
+            options: {
+                chart: {
+                    type: 'line',
+                }
+            },
+            title: {
+                text: 'network in'
+            },
+            series: d,
+            size: {
+                width: 1000,
+                height: 500
+            }
+        };
         console.log(data);
     });
 }]);
