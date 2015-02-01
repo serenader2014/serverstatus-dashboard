@@ -17,4 +17,7 @@ load.statics.new = function (data) {
 load.statics.getAll = function () {
     return this.findAsync({});
 };
+load.statics.findByServer = function (name) {
+    return this.findOneAsync({server: name});
+};
 module.exports = mongoose.model('load', load);

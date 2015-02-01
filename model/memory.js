@@ -18,4 +18,7 @@ memory.statics.new = function (data) {
 memory.statics.getAll = function () {
     return this.findAsync({});
 };
+memory.statics.findByServer = function (name) {
+    return this.findOneAsync({server: name});
+};
 module.exports = mongoose.model('memory', memory);

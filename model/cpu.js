@@ -17,4 +17,7 @@ cpu.statics.new = function (data) {
 cpu.statics.getAll = function () {
     return this.findAsync({});
 };
+cpu.statics.findByServer = function (name) {
+    return this.findOneAsync({server: name});
+};
 module.exports = mongoose.model('cpu', cpu);

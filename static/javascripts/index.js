@@ -1,6 +1,6 @@
 /* global angular, io */
 
-var app = angular.module('app', ['ngMaterial', 'ngResource', 'ngRoute', 'ngMessages']);
+var app = angular.module('app', ['ngMaterial', 'ngResource', 'ngRoute', 'ngMessages', 'highcharts-ng']);
 
 app.config(['$routeProvider',function($routeProvider) {
     $routeProvider.when('/', {
@@ -16,14 +16,8 @@ app.config(['$routeProvider',function($routeProvider) {
 }]);
 
 app.controller('homepageCtrl', ['$scope', '$rootScope', '$http', '$location', 'checkUser', function ($scope, $rootScope, $http, $location, checkUser) {
-    // checkUser.get(function (responese) {
-    //     if (responese.ret !== 0) {
-    //         $location.path('/login');
-    //     }
-    // });
     var socket = io.connect('http://localhost:23333');
     socket.on('data', function (data) {
-        $scope.servers = data;
         console.log(data);
     });
 }]);

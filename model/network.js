@@ -18,4 +18,7 @@ network.statics.new = function (data) {
 network.statics.getAll = function () {
     return this.findAsync({});
 };
+network.statics.findByServer = function (name) {
+    return this.findOneAsync({server: name});
+};
 module.exports = mongoose.model('network', network);

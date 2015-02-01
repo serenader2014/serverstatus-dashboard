@@ -7,7 +7,8 @@
         "angular-route": "latest",
         "angular-messages": "latest",
         "jquery": "latest",
-        "highcharts.com": "latest",
+        "highcharts-release": "latest",
+        "highcharts-ng": "latest",
         "moment": "latest",
         "socket.io": "https://github.com/Automattic/socket.io-client.git"
     }

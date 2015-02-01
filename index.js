@@ -44,30 +44,37 @@ mongoose.connectAsync(config.db).then(function () {
     });
 
     io.on('connection', function (socket) {
-        var result = {};
         setInterval(function () {
-            db.server.getAll().then(function (data) {
-                result.server = data;
-                return db.cpu.getAll();
-            }).then(function (data) {
-                result.cpu = data;
-                return db.disk.getAll();
-            }).then(function (data) {
-                result.disk = data;
-                return db.load.getAll();
-            }).then(function (data) {
-                result.load = data;
-                return db.memory.getAll();
-            }).then(function (data) {
-                result.memory = data;
-                return db.network.getAll();
-            }).then(function (data) {
-                result.network = data;
-                return db.swap.getAll();
-            }).then(function (data) {
-                result.swap = data;
-            }).then(function () {
-                socket.emit('data', result);
+            db.server.getAll().then(function (servers) {
+                _.reduce(servers, function (p, server) {
+                    return p.then(function () {
+                        return db.cpu.findByServer(server.name).then(function (data) {
+                            server.cpu = data;
+                        }).then(function () {
+                            return db.disk.findByServer(server.name);
+                        }).then(function (data) {
+                            server.disk = data;
+                        }).then(function () {
+                            return db.load.findByServer(server.name);
+                        }).then(function (data) {
+                            server.load = data;
+                        }).then(function () {
+                            return db.memory.findByServer(server.name);
+                        }).then(function (data) {
+                            server.memory = data;
+                        }).then(function () {
+                            return db.network.findByServer(server.name);
+                        }).then(function (data) {
+                            server.network = data;
+                        }).then(function () {
+                            return db.swap.findByServer(server.name);
+                        }).then(function (data) {
+                            server.swap = data;
+                        });
+                    });
+                }, promise.resolve()).then(function () {
+                    socket.emit('data', servers);
+                });
             });
         }, 5000);
     });

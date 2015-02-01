@@ -18,5 +18,7 @@ swap.statics.new = function (data) {
 swap.statics.getAll = function () {
     return this.findAsync({});
 };
-
+swap.statics.findByServer = function (name) {
+    return this.findOneAsync({server: name});
+};
 module.exports = mongoose.model('swap', swap);
